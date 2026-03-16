@@ -2,17 +2,18 @@ const Lobby = (() => {
   let roomChannel = null;
 
   async function getRooms() {
-    const { data } = await db
+    const { data, error } = await window.db
       .from('rooms')
-      .select('*, profiles!rooms_created_by_fkey(username)')
+      .select('id, created_by, status, created_at')
       .eq('status', 'waiting')
       .order('created_at', { ascending: false });
+    if (error) { console.error('getRooms error', error); return []; }
     return data || [];
   }
 
   async function createRoom() {
     const user = Auth.getUser();
-    const { data, error } = await db
+    const { data, error } = await window.db
       .from('rooms')
       .insert({ created_by: user.id, status: 'waiting' })
       .select()
@@ -23,7 +24,7 @@ const Lobby = (() => {
 
   async function joinRoom(roomId) {
     const user = Auth.getUser();
-    const { data, error } = await db
+    const { data, error } = await window.db
       .from('rooms')
       .update({ opponent_id: user.id, status: 'playing' })
       .eq('id', roomId)
@@ -35,28 +36,39 @@ const Lobby = (() => {
   }
 
   function subscribeRooms(onChange) {
-    roomChannel = db
+    roomChannel = window.db
       .channel('rooms-lobby')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, onChange)
       .subscribe();
   }
 
   function unsubscribe() {
-    if (roomChannel) { db.removeChannel(roomChannel); roomChannel = null; }
+    if (roomChannel) { window.db.removeChannel(roomChannel); roomChannel = null; }
   }
 
-  function renderRooms(rooms) {
+  async function renderRooms(rooms) {
     const list = document.getElementById('room-list');
     const empty = document.getElementById('lobby-empty');
-    const waiting = rooms.filter(r => r.status === 'waiting');
+    const waiting = (rooms || []).filter(r => r.status === 'waiting');
+
     if (waiting.length === 0) {
       list.innerHTML = '';
       empty.style.display = 'block';
       return;
     }
     empty.style.display = 'none';
+
+    // fetch usernames separately
+    const ids = [...new Set(waiting.map(r => r.created_by))];
+    const { data: profiles } = await window.db
+      .from('profiles')
+      .select('id, username')
+      .in('id', ids);
+    const nameMap = {};
+    (profiles || []).forEach(p => nameMap[p.id] = p.username);
+
     list.innerHTML = waiting.map(r => {
-      const name = r.profiles?.username || 'Ẩn danh';
+      const name = nameMap[r.created_by] || 'Ẩn danh';
       const time = new Date(r.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
       const isOwn = r.created_by === Auth.getUser()?.id;
       return `
