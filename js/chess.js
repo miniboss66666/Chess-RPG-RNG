@@ -487,7 +487,9 @@ const ChessGame = (() => {
     myColor = (role==='creator') ? 'white' : 'black';
     const firstTurn = (myColor==='white');
     if (game) { game.destroy(true); game=null; scene=null; }
+    // Xóa canvas preview nếu có
     const container = document.getElementById('phaser-container');
+    if (container) container.innerHTML = '';
     const size = Math.min(window.innerWidth, window.innerHeight - 120, 512);
     if (container) {
       container.style.width = size + 'px';
