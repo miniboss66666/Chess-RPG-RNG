@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chess RPG RNG</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-box">
+      <h1>Chess RPG</h1>
+      <p class="subtitle">RNG Card Battle Chess</p>
+      <input id="auth-email" type="email" placeholder="Email" />
+      <input id="auth-password" type="password" placeholder="Mật khẩu" />
+      <button id="btn-login">Đăng nhập</button>
+      <button id="btn-register" class="ghost">Tạo tài khoản</button>
+      <p id="auth-msg" class="msg"></p>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="screen-home" class="screen">
+    <div class="home-header">
+      <div class="avatar" id="home-avatar">?</div>
+      <div>
+        <div id="home-username" class="username">...</div>
+        <div id="home-coin" class="coin">0 coin</div>
+      </div>
+    </div>
+    <div class="nav-grid">
+      <button class="nav-btn" id="btn-play">
+        <span class="nav-icon">♟</span>
+        <span>Chơi</span>
+      </button>
+      <button class="nav-btn" id="btn-dex">
+        <span class="nav-icon">📖</span>
+        <span>Dex</span>
+      </button>
+      <button class="nav-btn" id="btn-upgrade">
+        <span class="nav-icon">⭐</span>
+        <span>Upgrade</span>
+      </button>
+      <button class="nav-btn" id="btn-settings">
+        <span class="nav-icon">⚙</span>
+        <span>Cài đặt</span>
+      </button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat"><span id="stat-win">0</span><small>Thắng</small></div>
+      <div class="stat"><span id="stat-lose">0</span><small>Thua</small></div>
+      <div class="stat"><span id="stat-cards">0</span><small>Thẻ</small></div>
+    </div>
+  </div>
+
+  <!-- LOBBY SCREEN -->
+  <div id="screen-lobby" class="screen">
+    <div class="screen-header">
+      <button class="back-btn" id="btn-lobby-back">← Về</button>
+      <h2>Tìm phòng</h2>
+    </div>
+    <div class="lobby-body">
+      <button id="btn-create-room" class="primary-btn">+ Tạo phòng mới</button>
+      <p class="section-label">Phòng đang mở</p>
+      <div id="room-list"></div>
+      <p id="lobby-empty" class="empty-msg">Chưa có phòng nào...</p>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <button class="back-btn" id="btn-game-back">← Thoát</button>
+      <div id="game-status">Đang chờ đối thủ...</div>
+      <div id="turn-indicator" class="turn-badge"></div>
+    </div>
+    <div id="phaser-container"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/lobby.js"></script>
+  <script src="js/chess.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
