@@ -17,7 +17,7 @@
       <button id="btn-login">Đăng nhập</button>
       <button id="btn-register" class="ghost">Tạo tài khoản</button>
       <p id="auth-msg" class="msg"></p>
-      <p class="version">v0.0.6 — Teaser</p>
+      <p class="version">v0.0.7 — Teaser</p>
     </div>
   </div>
 
@@ -122,10 +122,53 @@
       </div>
       <div class="settings-section">
         <p class="section-label">Thông tin</p>
-        <div class="settings-row"><span>Phiên bản</span><span class="settings-val">v0.0.6 — Teaser</span></div>
+        <div class="settings-row"><span>Phiên bản</span><span class="settings-val">v0.0.7 — Teaser</span></div>
         <div class="settings-row"><span>Dev</span><span class="settings-val">Miniboss</span></div>
       </div>
       <button id="btn-logout" class="danger-btn">Đăng xuất</button>
+    </div>
+  </div>
+
+
+  <!-- COMBAT SCREEN -->
+  <div id="screen-combat" style="display:none;flex-direction:column;min-height:100vh;position:relative;">
+    <div class="combat-header">
+      <span style="font-size:13px;font-weight:600;color:var(--text)">⚔️ Card Battle</span>
+      <div id="combat-turn" class="combat-turn my-turn">Lượt của bạn!</div>
+    </div>
+    <div class="combat-arena">
+      <div class="combatant">
+        <div class="combatant-top">
+          <div id="atk-sym" class="piece-sym-big">♙</div>
+          <div>
+            <div id="atk-name" class="combatant-name">Tốt (bạn)</div>
+            <div id="atk-hp-txt" class="hp-text">40 / 40</div>
+          </div>
+        </div>
+        <div class="hp-track"><div id="atk-hp-bar" class="hp-fill" style="width:100%;background:#4aaa6e"></div></div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="combatant">
+        <div class="combatant-top">
+          <div id="def-sym" class="piece-sym-big">♟</div>
+          <div>
+            <div id="def-name" class="combatant-name">Tốt (địch)</div>
+            <div id="def-hp-txt" class="hp-text">40 / 40</div>
+          </div>
+        </div>
+        <div class="hp-track"><div id="def-hp-bar" class="hp-fill" style="width:100%;background:#4aaa6e"></div></div>
+      </div>
+    </div>
+    <div class="combat-log-box" id="combat-log"></div>
+    <div class="hand-label">Tay bài của bạn</div>
+    <div class="combat-hand" id="combat-hand"></div>
+    <div class="combat-actions">
+      <button class="discard-btn" onclick="Combat.discardAndDraw()">🔄 Bỏ bài & Rút mới (mất lượt)</button>
+    </div>
+    <div id="combat-result">
+      <div id="result-title">⚔️ Thắng!</div>
+      <div id="result-sub">Tốt hạ gục đối thủ!</div>
+      <button id="result-close" onclick="Combat.endCombat()">Tiếp tục ván cờ →</button>
     </div>
   </div>
 
@@ -134,6 +177,8 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/lobby.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/combat.js"></script>
   <script src="js/chess.js"></script>
   <script src="js/sync.js"></script>
   <script src="js/app.js"></script>

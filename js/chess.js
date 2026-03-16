@@ -233,23 +233,64 @@ const ChessGame = (() => {
     doMove(fr, fc, tr, tc) {
       const fromSq = rcToSq(fr, fc);
       const toSq = rcToSq(tr, tc);
+      const attackerPiece = this.board[fr][fc];
+      const defenderPiece = this.board[tr][tc];
+      const isCapture = !!defenderPiece;
+
+      if (isCapture) {
+        // Tính khoảng cách di chuyển
+        const dist = Math.max(Math.abs(tr - fr), Math.abs(tc - fc));
+        // Đếm tốt trên bàn
+        let pawnsOnBoard = 0, alliedKnights = 0, hasQueenOrRook = false, alliesOnBoard = false;
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+          const p = this.board[r][c];
+          if (!p) continue;
+          if (p[0] === myColor[0]) {
+            if (p[1]==='P') pawnsOnBoard++;
+            if (p[1]==='N') alliedKnights++;
+            if (p[1]==='Q'||p[1]==='R') hasQueenOrRook = true;
+            if (p !== attackerPiece) alliesOnBoard = true;
+          }
+        }
+        const gameCtx = {
+          moveCount: this._moveCount || 0,
+          attackDistance: dist,
+          pawnsOnBoard, alliedKnights, hasQueenOrRook, alliesOnBoard,
+          enPassantUsed: this._lastEnPassant || false,
+          castlingUsed: this._castlingUsed || false,
+          checkedKing: this._checkedKing || false,
+          promoted: this._promoted || false,
+        };
+        const sceneRef = this;
+        const roomRef = roomData;
+        Combat.start(attackerPiece, defenderPiece, gameCtx, myColor, (result) => {
+          if (result.attackerWon) {
+            sceneRef.board[tr][tc] = attackerPiece;
+            sceneRef.board[fr][fc] = null;
+          } else {
+            sceneRef.board[fr][fc] = null;
+          }
+          if (sceneRef.board[tr][tc] === 'wP' && tr === 0) { sceneRef.board[tr][tc] = 'wQ'; sceneRef._promoted = true; }
+          if (sceneRef.board[tr][tc] === 'bP' && tr === 7) { sceneRef.board[tr][tc] = 'bQ'; sceneRef._promoted = true; }
+          sceneRef.drawPieces();
+          sceneRef.myTurn = false;
+          Sync.sendMove(roomRef.id, fromSq, toSq, null, result.attackerWon).catch(e => console.error(e));
+        });
+        this._moveCount = (this._moveCount || 0) + 1;
+        this.selected = null; this.validMoves = []; this.clearHighlights();
+        return;
+      }
 
       this.board[tr][tc] = this.board[fr][fc];
       this.board[fr][fc] = null;
-
-      // Pawn promotion auto-queen
       if (this.board[tr][tc] === 'wP' && tr === 0) this.board[tr][tc] = 'wQ';
       if (this.board[tr][tc] === 'bP' && tr === 7) this.board[tr][tc] = 'bQ';
-
-      this.selected = null;
-      this.validMoves = [];
-      this.clearHighlights();
+      this._moveCount = (this._moveCount || 0) + 1;
+      this.selected = null; this.validMoves = []; this.clearHighlights();
       this.drawPieces();
       this.myTurn = false;
-
       const statusEl = document.getElementById('turn-indicator');
       if (statusEl) { statusEl.textContent = 'Lượt đối thủ'; statusEl.className = 'turn-badge'; }
-
       Sync.sendMove(roomData.id, fromSq, toSq).catch(e => console.error('Send move error', e));
     }
 
