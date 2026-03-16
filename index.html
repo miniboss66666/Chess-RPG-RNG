@@ -18,6 +18,7 @@
       <button id="btn-login">Đăng nhập</button>
       <button id="btn-register" class="ghost">Tạo tài khoản</button>
       <p id="auth-msg" class="msg"></p>
+      <p class="version">v0.1.0 — Teaser</p>
     </div>
   </div>
 
@@ -79,7 +80,45 @@
     <div id="phaser-container"></div>
   </div>
 
+  <!-- SETTINGS SCREEN -->
+  <div id="screen-settings" class="screen">
+    <div class="screen-header">
+      <button class="back-btn" id="btn-settings-back">← Về</button>
+      <h2>Cài đặt</h2>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">
+        <p class="section-label">Tài khoản</p>
+        <div class="settings-row">
+          <span>Tên người dùng</span>
+          <span id="settings-username" class="settings-val">...</span>
+        </div>
+        <div class="settings-row">
+          <span>Email</span>
+          <span id="settings-email" class="settings-val">...</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="section-label">Thông tin</p>
+        <div class="settings-row">
+          <span>Phiên bản</span>
+          <span class="settings-val">v0.1.0 — Teaser</span>
+        </div>
+        <div class="settings-row">
+          <span>Dev</span>
+          <span class="settings-val">Miniboss</span>
+        </div>
+      </div>
+      <button id="btn-logout" class="danger-btn">Đăng xuất</button>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <script>
+    if (typeof window.supabase === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>

@@ -1,16 +1,5 @@
 {
   "name": "chess-rpg-rng",
-  "version": "1.0.0",
-  "description": "A roguelike chess adventure with RNG mechanics",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "version": "0.1.0",
+  "description": "Chess RPG RNG - Card Battle Chess"
 }

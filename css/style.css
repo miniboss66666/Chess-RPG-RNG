@@ -12,10 +12,6 @@
   --gold: #f0b84a;
   --danger: #e05555;
   --success: #4aaa6e;
-  --white-sq: #f0d9b5;
-  --black-sq: #b58863;
-  --highlight: rgba(124, 111, 234, 0.5);
-  --valid-move: rgba(74, 170, 110, 0.45);
 }
 
 body {
@@ -37,6 +33,7 @@ body {
 }
 .auth-box h1 { font-size: 32px; font-weight: 700; text-align: center; color: var(--accent); }
 .auth-box .subtitle { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 8px; }
+.version { text-align: center; font-size: 11px; color: var(--text2); margin-top: 4px; opacity: 0.6; }
 
 input {
   background: var(--bg2); border: 1px solid var(--border);
@@ -92,7 +89,7 @@ button.ghost:hover { background: var(--bg2); color: var(--text); }
 .nav-icon { font-size: 24px; line-height: 1; }
 
 .stats-bar {
-  display: flex; gap: 0; margin: 16px 20px 0;
+  display: flex; margin: 16px 20px 0;
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 10px; overflow: hidden;
 }
@@ -123,7 +120,6 @@ button.ghost:hover { background: var(--bg2); color: var(--text); }
   background: var(--accent); color: #fff;
   border: none; border-radius: 8px; padding: 12px;
   font-size: 14px; font-weight: 600; cursor: pointer;
-  transition: background .15s;
 }
 .primary-btn:hover { background: var(--accent2); }
 .section-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; }
@@ -156,5 +152,27 @@ button.ghost:hover { background: var(--bg2); color: var(--text); }
   border-radius: 20px; background: var(--bg3); color: var(--text2);
 }
 .turn-badge.my-turn { background: var(--accent); color: #fff; }
-
 #phaser-container canvas { display: block; margin: 0 auto; }
+
+/* SETTINGS */
+.settings-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
+.settings-section {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.settings-section .section-label {
+  padding: 10px 14px 6px; display: block;
+}
+.settings-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.settings-val { color: var(--text2); font-size: 12px; }
+.danger-btn {
+  background: transparent; color: var(--danger);
+  border: 1px solid var(--danger); border-radius: 8px;
+  padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: background .15s;
+}
+.danger-btn:hover { background: rgba(224, 85, 85, 0.1); }

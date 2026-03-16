@@ -2,7 +2,7 @@ const Lobby = (() => {
   let roomChannel = null;
 
   async function getRooms() {
-    const { data } = await supabase
+    const { data } = await db
       .from('rooms')
       .select('*, profiles!rooms_created_by_fkey(username)')
       .eq('status', 'waiting')
@@ -12,7 +12,7 @@ const Lobby = (() => {
 
   async function createRoom() {
     const user = Auth.getUser();
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('rooms')
       .insert({ created_by: user.id, status: 'waiting' })
       .select()
@@ -23,9 +23,9 @@ const Lobby = (() => {
 
   async function joinRoom(roomId) {
     const user = Auth.getUser();
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('rooms')
-      .update({ opponent_id: user.id, status: 'playing', current_turn: null })
+      .update({ opponent_id: user.id, status: 'playing' })
       .eq('id', roomId)
       .eq('status', 'waiting')
       .select()
@@ -35,28 +35,20 @@ const Lobby = (() => {
   }
 
   function subscribeRooms(onChange) {
-    roomChannel = supabase
+    roomChannel = db
       .channel('rooms-lobby')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'rooms'
-      }, onChange)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, onChange)
       .subscribe();
   }
 
   function unsubscribe() {
-    if (roomChannel) {
-      supabase.removeChannel(roomChannel);
-      roomChannel = null;
-    }
+    if (roomChannel) { db.removeChannel(roomChannel); roomChannel = null; }
   }
 
-  function renderRooms(rooms, onJoin) {
+  function renderRooms(rooms) {
     const list = document.getElementById('room-list');
     const empty = document.getElementById('lobby-empty');
     const waiting = rooms.filter(r => r.status === 'waiting');
-
     if (waiting.length === 0) {
       list.innerHTML = '';
       empty.style.display = 'block';
@@ -82,9 +74,9 @@ const Lobby = (() => {
   }
 
   function _join(roomId) {
-    Lobby.joinRoom(roomId).then(room => {
-      App.enterGame(room, 'opponent');
-    }).catch(e => alert('Không thể vào phòng: ' + e.message));
+    Lobby.joinRoom(roomId)
+      .then(room => App.enterGame(room, 'opponent'))
+      .catch(e => alert('Không thể vào phòng: ' + e.message));
   }
 
   return { getRooms, createRoom, joinRoom, subscribeRooms, unsubscribe, renderRooms, _join };
