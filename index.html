@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+
   <div id="screen-auth" class="screen active">
     <div class="auth-box">
       <h1>Chess RPG</h1>
@@ -16,9 +17,10 @@
       <button id="btn-login">Đăng nhập</button>
       <button id="btn-register" class="ghost">Tạo tài khoản</button>
       <p id="auth-msg" class="msg"></p>
-      <p class="version">v0.0.5 — Teaser</p>
+      <p class="version">v0.0.6 — Teaser</p>
     </div>
   </div>
+
   <div id="screen-home" class="screen">
     <div class="home-header">
       <div class="avatar" id="home-avatar">?</div>
@@ -39,6 +41,7 @@
       <div class="stat"><span id="stat-cards">0</span><small>Thẻ</small></div>
     </div>
   </div>
+
   <div id="screen-lobby" class="screen">
     <div class="screen-header">
       <button class="back-btn" id="btn-lobby-back">← Về</button>
@@ -46,11 +49,57 @@
     </div>
     <div class="lobby-body">
       <button id="btn-create-room" class="primary-btn">+ Tạo phòng mới</button>
-      <p class="section-label">Phòng đang mở</p>
-      <div id="room-list"></div>
+      <p class="section-label" style="margin-top:4px">Phòng đang mở</p>
+      <div id="room-grid" class="room-grid"></div>
       <p id="lobby-empty" class="empty-msg">Chưa có phòng nào...</p>
     </div>
   </div>
+
+  <div id="screen-create-room" class="screen">
+    <div class="screen-header">
+      <button class="back-btn" id="btn-create-back">← Về</button>
+      <h2>Tạo phòng</h2>
+    </div>
+    <div class="create-body">
+      <div class="setting-group">
+        <label class="setting-label">Thời gian mỗi lượt</label>
+        <select id="setting-time" class="setting-select">
+          <option value="0">Không giới hạn</option>
+          <option value="30">30 giây</option>
+          <option value="60">60 giây</option>
+          <option value="120">2 phút</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Màu quân của bạn</label>
+        <select id="setting-color" class="setting-select">
+          <option value="random">Ngẫu nhiên</option>
+          <option value="white">Trắng (đi trước)</option>
+          <option value="black">Đen (đi sau)</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Loại cờ</label>
+        <select id="setting-mode" class="setting-select">
+          <option value="standard">Tiêu chuẩn</option>
+          <option value="960">Chess 960 (random setup)</option>
+        </select>
+      </div>
+      <div class="setting-group setting-toggle-row">
+        <label class="setting-label">Phòng riêng tư</label>
+        <label class="toggle">
+          <input type="checkbox" id="setting-private" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-group" id="password-row" style="display:none">
+        <label class="setting-label">Mật khẩu phòng</label>
+        <input type="text" id="setting-password" class="setting-input" placeholder="Nhập mật khẩu..." />
+      </div>
+      <button id="btn-confirm-create" class="primary-btn" style="margin-top:8px">Tạo phòng & Chờ đối thủ</button>
+    </div>
+  </div>
+
   <div id="screen-game" class="screen">
     <div class="game-header">
       <button class="back-btn" id="btn-game-back">← Thoát</button>
@@ -59,6 +108,7 @@
     </div>
     <div id="phaser-container"></div>
   </div>
+
   <div id="screen-settings" class="screen">
     <div class="screen-header">
       <button class="back-btn" id="btn-settings-back">← Về</button>
@@ -72,12 +122,13 @@
       </div>
       <div class="settings-section">
         <p class="section-label">Thông tin</p>
-        <div class="settings-row"><span>Phiên bản</span><span class="settings-val">v0.0.5 — Teaser</span></div>
+        <div class="settings-row"><span>Phiên bản</span><span class="settings-val">v0.0.6 — Teaser</span></div>
         <div class="settings-row"><span>Dev</span><span class="settings-val">Miniboss</span></div>
       </div>
       <button id="btn-logout" class="danger-btn">Đăng xuất</button>
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/config.js"></script>
