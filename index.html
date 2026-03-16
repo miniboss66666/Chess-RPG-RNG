@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
-  <!-- AUTH SCREEN -->
   <div id="screen-auth" class="screen active">
     <div class="auth-box">
       <h1>Chess RPG</h1>
@@ -21,8 +19,6 @@
       <p class="version">v0.1.0 — Teaser</p>
     </div>
   </div>
-
-  <!-- HOME SCREEN -->
   <div id="screen-home" class="screen">
     <div class="home-header">
       <div class="avatar" id="home-avatar">?</div>
@@ -32,22 +28,10 @@
       </div>
     </div>
     <div class="nav-grid">
-      <button class="nav-btn" id="btn-play">
-        <span class="nav-icon">♟</span>
-        <span>Chơi</span>
-      </button>
-      <button class="nav-btn" id="btn-dex">
-        <span class="nav-icon">📖</span>
-        <span>Dex</span>
-      </button>
-      <button class="nav-btn" id="btn-upgrade">
-        <span class="nav-icon">⭐</span>
-        <span>Upgrade</span>
-      </button>
-      <button class="nav-btn" id="btn-settings">
-        <span class="nav-icon">⚙</span>
-        <span>Cài đặt</span>
-      </button>
+      <button class="nav-btn" id="btn-play"><span class="nav-icon">♟</span><span>Chơi</span></button>
+      <button class="nav-btn" id="btn-dex"><span class="nav-icon">📖</span><span>Dex</span></button>
+      <button class="nav-btn" id="btn-upgrade"><span class="nav-icon">⭐</span><span>Upgrade</span></button>
+      <button class="nav-btn" id="btn-settings"><span class="nav-icon">⚙</span><span>Cài đặt</span></button>
     </div>
     <div class="stats-bar">
       <div class="stat"><span id="stat-win">0</span><small>Thắng</small></div>
@@ -55,8 +39,6 @@
       <div class="stat"><span id="stat-cards">0</span><small>Thẻ</small></div>
     </div>
   </div>
-
-  <!-- LOBBY SCREEN -->
   <div id="screen-lobby" class="screen">
     <div class="screen-header">
       <button class="back-btn" id="btn-lobby-back">← Về</button>
@@ -69,8 +51,6 @@
       <p id="lobby-empty" class="empty-msg">Chưa có phòng nào...</p>
     </div>
   </div>
-
-  <!-- GAME SCREEN -->
   <div id="screen-game" class="screen">
     <div class="game-header">
       <button class="back-btn" id="btn-game-back">← Thoát</button>
@@ -79,8 +59,6 @@
     </div>
     <div id="phaser-container"></div>
   </div>
-
-  <!-- SETTINGS SCREEN -->
   <div id="screen-settings" class="screen">
     <div class="screen-header">
       <button class="back-btn" id="btn-settings-back">← Về</button>
@@ -89,36 +67,18 @@
     <div class="settings-body">
       <div class="settings-section">
         <p class="section-label">Tài khoản</p>
-        <div class="settings-row">
-          <span>Tên người dùng</span>
-          <span id="settings-username" class="settings-val">...</span>
-        </div>
-        <div class="settings-row">
-          <span>Email</span>
-          <span id="settings-email" class="settings-val">...</span>
-        </div>
+        <div class="settings-row"><span>Tên người dùng</span><span id="settings-username" class="settings-val">...</span></div>
+        <div class="settings-row"><span>Email</span><span id="settings-email" class="settings-val">...</span></div>
       </div>
       <div class="settings-section">
         <p class="section-label">Thông tin</p>
-        <div class="settings-row">
-          <span>Phiên bản</span>
-          <span class="settings-val">v0.1.0 — Teaser</span>
-        </div>
-        <div class="settings-row">
-          <span>Dev</span>
-          <span class="settings-val">Miniboss</span>
-        </div>
+        <div class="settings-row"><span>Phiên bản</span><span class="settings-val">v0.1.0 — Teaser</span></div>
+        <div class="settings-row"><span>Dev</span><span class="settings-val">Miniboss</span></div>
       </div>
       <button id="btn-logout" class="danger-btn">Đăng xuất</button>
     </div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-  <script>
-    if (typeof window.supabase === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');
-    }
-  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
