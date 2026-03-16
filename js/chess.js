@@ -515,21 +515,53 @@ const ChessGame = (() => {
   function startPreview() {
     myColor = null;
     if (game) { game.destroy(true); game=null; scene=null; }
+    // Dùng Canvas 2D thuần cho preview — không cần Phaser
     const container = document.getElementById('phaser-container');
-    const size = Math.min(window.innerWidth, window.innerHeight - 120, 512);
-    if (container) {
-      container.style.width = size + 'px';
-      container.style.height = size + 'px';
-      container.style.margin = '0 auto';
+    if (!container) return;
+    container.innerHTML = '';
+    const size = Math.min(window.innerWidth - 32, 480);
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    canvas.style.display = 'block';
+    canvas.style.margin = '0 auto';
+    container.appendChild(canvas);
+    _draw2DBoard(canvas, INIT_BOARD);
+  }
+
+  function _draw2DBoard(canvas, board) {
+    const ctx = canvas.getContext('2d');
+    const S = canvas.width / 8;
+    const SYMS = {
+      wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',
+      bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'
+    };
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        ctx.fillStyle = (r+c)%2===0 ? '#f0d9b5' : '#b58863';
+        ctx.fillRect(c*S, r*S, S, S);
+        const p = board[r][c];
+        if (p) {
+          ctx.font = `bold ${S*0.72}px serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = p[0]==='w' ? '#fff' : '#1a1a1a';
+          ctx.strokeStyle = p[0]==='w' ? '#444' : '#bbb';
+          ctx.lineWidth = 1;
+          ctx.strokeText(SYMS[p], c*S+S/2, r*S+S/2+2);
+          ctx.fillText(SYMS[p], c*S+S/2, r*S+S/2+2);
+        }
+      }
     }
-    game = new Phaser.Game({
-      type: Phaser.CANVAS,
-      width: size, height: size,
-      backgroundColor: '#0f0f13',
-      parent: 'phaser-container',
-      scene: ChessScene,
-      scale: { mode: Phaser.Scale.NONE }
-    });
+    // Labels
+    ctx.font = '11px sans-serif';
+    ctx.textBaseline = 'top';
+    for (let i = 0; i < 8; i++) {
+      ctx.fillStyle = i%2===0 ? '#b58863' : '#f0d9b5';
+      ctx.textAlign = 'left';
+      ctx.fillText(8-i, 3, i*S+3);
+      ctx.textAlign = 'right';
+      ctx.fillText('abcdefgh'[i], i*S+S-3, 8*S-13);
+    }
   }
 
   function handleOpponentMove(move) {
