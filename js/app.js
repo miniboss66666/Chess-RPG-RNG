@@ -130,8 +130,13 @@ const App = (() => {
     };
 
     document.getElementById('btn-game-back').onclick = async () => {
-      if (!confirm('Thoát ván cờ? Phòng sẽ bị xóa.')) return;
-      if (currentRoom) await Lobby.deleteRoom(currentRoom.id);
+      if (currentRoom) {
+        // Nếu đang chơi (có 2 người) mới cần confirm
+        if (currentRoom.status === 'playing') {
+          if (!confirm('Thoát ván cờ đang diễn ra?')) return;
+        }
+        await Lobby.deleteRoom(currentRoom.id);
+      }
       leaveGame();
     };
 

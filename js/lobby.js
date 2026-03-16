@@ -47,8 +47,11 @@ const Lobby = (() => {
   }
 
   async function deleteRoom(roomId) {
-    await window.db.from('moves').delete().eq('room_id', roomId);
-    await window.db.from('rooms').delete().eq('id', roomId);
+    if (!roomId) return;
+    const { error: e1 } = await window.db.from('moves').delete().eq('room_id', roomId);
+    if (e1) console.error('deleteRoom moves error:', e1);
+    const { error: e2 } = await window.db.from('rooms').delete().eq('id', roomId);
+    if (e2) console.error('deleteRoom rooms error:', e2);
   }
 
   function subscribeRooms(onChange) {
