@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 const MIME = {
   '.html': 'text/html',
@@ -21,14 +21,10 @@ http.createServer((req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      if (err.code === 'ENOENT') {
-        fs.readFile('./index.html', (e, d) => {
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end(d);
-        });
-      } else {
-        res.writeHead(500); res.end('Server error');
-      }
+      fs.readFile('./index.html', (e, d) => {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(d);
+      });
       return;
     }
     res.writeHead(200, { 'Content-Type': contentType });

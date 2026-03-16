@@ -1,3 +1,5 @@
+const VERSION = 'v0.1.0';
+
 const App = (() => {
   let currentRoom = null;
   let myRole = null;
@@ -5,6 +7,29 @@ const App = (() => {
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
+  }
+
+  function showToast(msg, type = 'info') {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+        background:var(--bg3); border:1px solid var(--border);
+        color:var(--text); padding:10px 20px; border-radius:8px;
+        font-size:13px; z-index:9999; transition:opacity .3s;
+        white-space:nowrap;
+      `;
+      document.body.appendChild(toast);
+    }
+    if (type === 'soon') toast.style.borderColor = 'var(--accent)';
+    else if (type === 'error') toast.style.borderColor = 'var(--danger)';
+    else toast.style.borderColor = 'var(--border)';
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.style.opacity = '0', 2500);
   }
 
   async function init() {
@@ -49,13 +74,20 @@ const App = (() => {
       try {
         await Auth.register(email, pass);
         msg.className = 'msg ok';
-        msg.textContent = 'Đăng ký thành công! Kiểm tra email xác nhận nếu cần.';
+        msg.textContent = 'Đăng ký thành công! Kiểm tra email xác nhận.';
       } catch (e) { msg.textContent = e.message; }
     };
 
     document.getElementById('btn-play').onclick = () => openLobby();
-    document.getElementById('btn-dex').onclick = () => alert('Dex — coming soon!');
-    document.getElementById('btn-upgrade').onclick = () => alert('Upgrade — coming soon!');
+
+    document.getElementById('btn-dex').onclick = () => {
+      showToast('📖 Dex — coming soon!', 'soon');
+    };
+
+    document.getElementById('btn-upgrade').onclick = () => {
+      showToast('⭐ Upgrade — coming soon!', 'soon');
+    };
+
     document.getElementById('btn-settings').onclick = () => openSettings();
 
     document.getElementById('btn-lobby-back').onclick = () => {
@@ -67,7 +99,7 @@ const App = (() => {
       try {
         const room = await Lobby.createRoom();
         enterGame(room, 'creator');
-      } catch (e) { alert('Lỗi tạo phòng: ' + e.message); }
+      } catch (e) { showToast('Lỗi tạo phòng: ' + e.message, 'error'); }
     };
 
     document.getElementById('btn-game-back').onclick = () => {
@@ -87,10 +119,10 @@ const App = (() => {
   async function openLobby() {
     showScreen('lobby');
     const rooms = await Lobby.getRooms();
-    Lobby.renderRooms(rooms);
+    await Lobby.renderRooms(rooms);
     Lobby.subscribeRooms(async () => {
       const updated = await Lobby.getRooms();
-      Lobby.renderRooms(updated);
+      await Lobby.renderRooms(updated);
     });
   }
 
@@ -141,7 +173,7 @@ const App = (() => {
     loadHome();
   }
 
-  return { init, enterGame, leaveGame, showScreen };
+  return { init, enterGame, leaveGame, showScreen, showToast };
 })();
 
 document.addEventListener('DOMContentLoaded', () => App.init());
