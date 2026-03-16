@@ -26,8 +26,55 @@ const App = (() => {
 
   async function init() {
     const user = await Auth.init();
-    if (user) { await loadHome(); showScreen('home'); }
-    else showScreen('auth');
+    if (user) {
+      await loadHome();
+
+      // Check phòng cũ còn tồn tại không
+      const { data: myRooms } = await window.db
+        .from('rooms')
+        .select('*')
+        .eq('created_by', user.id)
+        .eq('status', 'waiting')
+        .limit(1);
+
+      if (myRooms && myRooms.length > 0) {
+        // Có phòng đang chờ — hỏi có muốn vào lại không
+        const rejoin = confirm('Bạn còn phòng đang chờ đối thủ. Vào lại không?');
+        if (rejoin) {
+          showScreen('home');
+          enterGame(myRooms[0], 'creator');
+          return;
+        } else {
+          // Xóa phòng cũ
+          await Lobby.deleteRoom(myRooms[0].id);
+        }
+      }
+
+      // Check phòng đang chơi
+      const { data: playingRooms } = await window.db
+        .from('rooms')
+        .select('*')
+        .or(`created_by.eq.${user.id},opponent_id.eq.${user.id}`)
+        .eq('status', 'playing')
+        .limit(1);
+
+      if (playingRooms && playingRooms.length > 0) {
+        const rejoin = confirm('Bạn đang có ván cờ dở. Vào lại không?');
+        if (rejoin) {
+          showScreen('home');
+          const room = playingRooms[0];
+          const role = room.created_by === user.id ? 'creator' : 'opponent';
+          enterGame(room, role);
+          return;
+        } else {
+          await Lobby.deleteRoom(playingRooms[0].id);
+        }
+      }
+
+      showScreen('home');
+    } else {
+      showScreen('auth');
+    }
     bindEvents();
   }
 
@@ -72,7 +119,15 @@ const App = (() => {
       Lobby.unsubscribe(); showScreen('home');
     };
 
-    document.getElementById('btn-create-room').onclick = () => showScreen('create-room');
+    document.getElementById('btn-create-room').onclick = async () => {
+      const user = Auth.getUser();
+      const { data } = await window.db.from('rooms')
+        .select('id').eq('created_by', user.id).eq('status', 'waiting').limit(1);
+      if (data && data.length > 0) {
+        showToast('Bạn đang có phòng chờ rồi!', 'error'); return;
+      }
+      showScreen('create-room');
+    };
 
     document.getElementById('btn-create-back').onclick = () => showScreen('lobby');
 
@@ -145,8 +200,10 @@ const App = (() => {
   }
 
   function startGame() {
-    ChessGame.start(currentRoom, myRole);
-    Sync.subscribeMoves(currentRoom.id, (move) => ChessGame.handleOpponentMove(move));
+    setTimeout(() => {
+      ChessGame.start(currentRoom, myRole);
+      Sync.subscribeMoves(currentRoom.id, (move) => ChessGame.handleOpponentMove(move));
+    }, 150);
   }
 
   function leaveGame() {
@@ -159,3 +216,12 @@ const App = (() => {
 })();
 
 document.addEventListener('DOMContentLoaded', () => App.init());
+
+// Xóa phòng waiting nếu đóng tab/reload mà không confirm rejoin
+window.addEventListener('beforeunload', () => {
+  if (typeof currentRoom !== 'undefined' && currentRoom) {
+    // Dùng sendBeacon để gửi request ngay cả khi tab đóng
+    const url = `https://dwenhgluxjixvswlzlfk.supabase.co/rest/v1/rooms?id=eq.${currentRoom.id}&status=eq.waiting`;
+    navigator.sendBeacon && navigator.sendBeacon(url);
+  }
+});
