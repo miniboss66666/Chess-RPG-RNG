@@ -487,19 +487,27 @@ const ChessGame = (() => {
     myColor = (role==='creator') ? 'white' : 'black';
     const firstTurn = (myColor==='white');
     if (game) { game.destroy(true); game=null; scene=null; }
-    const size = Math.min(window.innerWidth, 512);
+    const container = document.getElementById('phaser-container');
+    const size = Math.min(window.innerWidth, window.innerHeight - 120, 512);
+    if (container) {
+      container.style.width = size + 'px';
+      container.style.height = size + 'px';
+      container.style.margin = '0 auto';
+    }
     game = new Phaser.Game({
-      type: Phaser.AUTO, width:size, height:size,
-      backgroundColor:'#0f0f13', parent:'phaser-container',
+      type: Phaser.CANVAS,
+      width: size, height: size,
+      backgroundColor: '#0f0f13',
+      parent: 'phaser-container',
       scene: ChessScene,
-      scale:{ mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH }
+      scale: { mode: Phaser.Scale.NONE }
     });
-    game.events.on('ready', ()=>{
-      if (scene) scene.myTurn=firstTurn;
-      const statusEl=document.getElementById('turn-indicator');
+    game.events.on('ready', () => {
+      if (scene) scene.myTurn = firstTurn;
+      const statusEl = document.getElementById('turn-indicator');
       if (statusEl) {
-        statusEl.textContent=firstTurn?'Lượt của bạn!':'Lượt đối thủ';
-        statusEl.className='turn-badge'+(firstTurn?' my-turn':'');
+        statusEl.textContent = firstTurn ? 'Lượt của bạn!' : 'Lượt đối thủ';
+        statusEl.className = 'turn-badge' + (firstTurn ? ' my-turn' : '');
       }
     });
   }
@@ -507,12 +515,20 @@ const ChessGame = (() => {
   function startPreview() {
     myColor = null;
     if (game) { game.destroy(true); game=null; scene=null; }
-    const size = Math.min(window.innerWidth, 512);
+    const container = document.getElementById('phaser-container');
+    const size = Math.min(window.innerWidth, window.innerHeight - 120, 512);
+    if (container) {
+      container.style.width = size + 'px';
+      container.style.height = size + 'px';
+      container.style.margin = '0 auto';
+    }
     game = new Phaser.Game({
-      type: Phaser.AUTO, width:size, height:size,
-      backgroundColor:'#0f0f13', parent:'phaser-container',
+      type: Phaser.CANVAS,
+      width: size, height: size,
+      backgroundColor: '#0f0f13',
+      parent: 'phaser-container',
       scene: ChessScene,
-      scale:{ mode:Phaser.Scale.FIT, autoCenter:Phaser.Scale.CENTER_BOTH }
+      scale: { mode: Phaser.Scale.NONE }
     });
   }
 
