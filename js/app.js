@@ -25,57 +25,40 @@ const App = (() => {
   }
 
   async function init() {
-    const user = await Auth.init();
-    if (user) {
-      await loadHome();
-
-      // Check phòng cũ còn tồn tại không
-      const { data: myRooms } = await window.db
-        .from('rooms')
-        .select('*')
-        .eq('created_by', user.id)
-        .eq('status', 'waiting')
-        .limit(1);
-
-      if (myRooms && myRooms.length > 0) {
-        // Có phòng đang chờ — hỏi có muốn vào lại không
-        const rejoin = confirm('Bạn còn phòng đang chờ đối thủ. Vào lại không?');
-        if (rejoin) {
-          showScreen('home');
-          enterGame(myRooms[0], 'creator');
-          return;
-        } else {
-          // Xóa phòng cũ
-          await Lobby.deleteRoom(myRooms[0].id);
-        }
-      }
-
-      // Check phòng đang chơi
-      const { data: playingRooms } = await window.db
-        .from('rooms')
-        .select('*')
-        .or(`created_by.eq.${user.id},opponent_id.eq.${user.id}`)
-        .eq('status', 'playing')
-        .limit(1);
-
-      if (playingRooms && playingRooms.length > 0) {
-        const rejoin = confirm('Bạn đang có ván cờ dở. Vào lại không?');
-        if (rejoin) {
-          showScreen('home');
-          const room = playingRooms[0];
-          const role = room.created_by === user.id ? 'creator' : 'opponent';
-          enterGame(room, role);
-          return;
-        } else {
-          await Lobby.deleteRoom(playingRooms[0].id);
-        }
-      }
-
-      showScreen('home');
-    } else {
-      showScreen('auth');
-    }
     bindEvents();
+    const user = await Auth.init();
+    if (!user) { showScreen('auth'); return; }
+
+    await loadHome();
+
+    // Check phòng waiting
+    const { data: myRooms } = await window.db
+      .from('rooms').select('*')
+      .eq('created_by', user.id).eq('status', 'waiting').limit(1);
+
+    if (myRooms && myRooms.length > 0) {
+      const rejoin = confirm('Bạn còn phòng đang chờ đối thủ. Vào lại không?');
+      if (rejoin) { showScreen('home'); enterGame(myRooms[0], 'creator'); return; }
+      else await Lobby.deleteRoom(myRooms[0].id);
+    }
+
+    // Check phòng đang chơi
+    const { data: playingRooms } = await window.db
+      .from('rooms').select('*')
+      .or(`created_by.eq.${user.id},opponent_id.eq.${user.id}`)
+      .eq('status', 'playing').limit(1);
+
+    if (playingRooms && playingRooms.length > 0) {
+      const rejoin = confirm('Bạn đang có ván cờ dở. Vào lại không?');
+      if (rejoin) {
+        showScreen('home');
+        const room = playingRooms[0];
+        enterGame(room, room.created_by === user.id ? 'creator' : 'opponent');
+        return;
+      } else await Lobby.deleteRoom(playingRooms[0].id);
+    }
+
+    showScreen('home');
   }
 
   async function loadHome() {
@@ -123,9 +106,7 @@ const App = (() => {
       const user = Auth.getUser();
       const { data } = await window.db.from('rooms')
         .select('id').eq('created_by', user.id).eq('status', 'waiting').limit(1);
-      if (data && data.length > 0) {
-        showToast('Bạn đang có phòng chờ rồi!', 'error'); return;
-      }
+      if (data && data.length > 0) { showToast('Bạn đang có phòng chờ rồi!', 'error'); return; }
       showScreen('create-room');
     };
 
@@ -179,37 +160,63 @@ const App = (() => {
     showScreen('settings');
   }
 
+  function showRoomInfo(room, role) {
+    const infoBar = document.getElementById('room-info-bar');
+    if (!infoBar) return;
+    infoBar.style.display = 'flex';
+    const timeLabel = room.time_limit === 0 ? '∞/lượt' : room.time_limit + 's/lượt';
+    const colorLabel = role === 'creator'
+      ? (room.creator_color === 'white' ? '♔ Trắng' : room.creator_color === 'black' ? '♚ Đen' : '🎲 Random')
+      : (room.creator_color === 'white' ? '♚ Đen' : room.creator_color === 'black' ? '♔ Trắng' : '🎲 Random');
+    document.getElementById('info-mode').textContent = room.mode === '960' ? '♟ Chess 960' : '♟ Tiêu chuẩn';
+    document.getElementById('info-time').textContent = '⏱ ' + timeLabel;
+    document.getElementById('info-color').textContent = colorLabel;
+    document.getElementById('info-private').textContent = room.is_private ? '🔒' : '';
+  }
+
   function enterGame(room, role) {
     currentRoom = room; myRole = role;
     Lobby.unsubscribe();
     showScreen('game');
+    showRoomInfo(room, role);
+
     const statusEl = document.getElementById('game-status');
+    const turnEl = document.getElementById('turn-indicator');
+
     if (role === 'creator') {
       statusEl.textContent = 'Đang chờ đối thủ...';
+      if (turnEl) { turnEl.textContent = 'Chờ...'; turnEl.className = 'turn-badge'; }
+
+      // Hiện bàn cờ preview ngay
+      setTimeout(() => ChessGame.startPreview(), 50);
+
       Sync.subscribeRoom(room.id, (updatedRoom) => {
         if (updatedRoom.status === 'playing' && updatedRoom.opponent_id) {
           currentRoom = updatedRoom;
           statusEl.textContent = 'Bắt đầu!';
-          startGame();
+          ChessGame.destroy();
+          setTimeout(() => startGame(), 100);
         }
       });
     } else {
       statusEl.textContent = 'Bắt đầu trận đấu!';
-      startGame();
+      setTimeout(() => startGame(), 50);
     }
   }
 
   function startGame() {
-    setTimeout(() => {
-      ChessGame.start(currentRoom, myRole);
-      Sync.subscribeMoves(currentRoom.id, (move) => ChessGame.handleOpponentMove(move));
-    }, 150);
+    ChessGame.start(currentRoom, myRole);
+    Sync.subscribeMoves(currentRoom.id, (move) => ChessGame.handleOpponentMove(move));
   }
 
   function leaveGame() {
-    Sync.unsubscribe(); ChessGame.destroy();
+    Sync.unsubscribe();
+    ChessGame.destroy();
     currentRoom = null; myRole = null;
-    showScreen('home'); loadHome();
+    const infoBar = document.getElementById('room-info-bar');
+    if (infoBar) infoBar.style.display = 'none';
+    showScreen('home');
+    loadHome();
   }
 
   return { init, enterGame, leaveGame, showScreen, showToast };
@@ -217,11 +224,10 @@ const App = (() => {
 
 document.addEventListener('DOMContentLoaded', () => App.init());
 
-// Xóa phòng waiting nếu đóng tab/reload mà không confirm rejoin
 window.addEventListener('beforeunload', () => {
-  if (typeof currentRoom !== 'undefined' && currentRoom) {
-    // Dùng sendBeacon để gửi request ngay cả khi tab đóng
-    const url = `https://dwenhgluxjixvswlzlfk.supabase.co/rest/v1/rooms?id=eq.${currentRoom.id}&status=eq.waiting`;
+  if (currentRoom && currentRoom.status === 'waiting') {
+    const key = 'apikey';
+    const url = `https://dwenhgluxjixvswlzlfk.supabase.co/rest/v1/rooms?id=eq.${currentRoom.id}`;
     navigator.sendBeacon && navigator.sendBeacon(url);
   }
 });
